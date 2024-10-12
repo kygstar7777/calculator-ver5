@@ -1,48 +1,10 @@
 let currentLanguage = 'ko';
 
-function switchLanguage() {
-    const inputLabels = {
-        ko: [
-            "초기 투자금 (만원):",
-            "배당률 (%):",
-            "배당 성장률 (%):",
-            "주가 상승률 (%):",
-            "월 투자금 (만원):",
-            "월 투자금 증가율 (%):",
-            "배당금 재투자율 (%):",
-            "세율 (%):",
-            "인플레이션 (%):",
-            "목표 월 배당금 (만원):"
-        ],
-        en: [
-            "Initial Investment (ten thousand won):",
-            "Dividend Rate (%):",
-            "Dividend Growth Rate (%):",
-            "Stock Growth Rate (%):",
-            "Monthly Investment (ten thousand won):",
-            "Monthly Investment Growth Rate (%):",
-            "Reinvestment Rate (%):",
-            "Tax Rate (%):",
-            "Inflation (%):",
-            "Target Monthly Dividend (ten thousand won):"
-        ]
-    };
-
-    const buttonText = {
-        ko: "영어로 전환",
-        en: "Switch to Korean"
-    };
-
-    const inputs = document.querySelectorAll("#inputFields label");
-    inputs.forEach((label, index) => {
-        label.innerText = currentLanguage === 'ko' ? inputLabels.en[index] : inputLabels.ko[index];
-    });
-
-    currentLanguage = currentLanguage === 'ko' ? 'en' : 'ko';
-    document.getElementById("langSwitch").innerText = buttonText[currentLanguage];
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-function calculate() {
+document.getElementById("calculateButton").addEventListener("click", function() {
     const initialInvestment = parseFloat(document.getElementById("initialInvestment").value) * 10000;
     const dividendRate = parseFloat(document.getElementById("dividendRate").value) / 100;
     const dividendGrowthRate = parseFloat(document.getElementById("dividendGrowthRate").value) / 100;
@@ -54,95 +16,83 @@ function calculate() {
     const inflationRate = parseFloat(document.getElementById("inflationRate").value) / 100;
     const targetMonthlyDividend = parseFloat(document.getElementById("targetMonthlyDividend").value) * 10000;
 
-    const resultsTableBody = document.getElementById("resultsTable").querySelector("tbody");
-    resultsTableBody.innerHTML = ""; // 기존 데이터 삭제
-
+    let results = [];
     let totalInvestment = initialInvestment;
     let totalDividends = 0;
-    let year = 0;
-    let monthlyInvestmentCurrent = monthlyInvestment;
-    const results = [];
+    let accumulatedDividends = 0;
 
-    while (true) {
-        year++;
+    for (let year = 1; year <= 30; year++) {
+        const currentMonthlyInvestment = year === 1 ? monthlyInvestment : monthlyInvestment * Math.pow(1 + monthlyInvestmentGrowthRate, year - 1);
+        const annualInvestment = totalInvestment + currentMonthlyInvestment * 12;
+        const annualDividend = (annualInvestment * dividendRate) * reinvestmentRate * (1 - taxRate) * (1 - inflationRate);
+        const adjustedDividend = annualDividend * Math.pow(1 + dividendGrowthRate, year - 1);
 
-        // 첫해와 둘째해 월 투자금 계산
-        if (year > 1) {
-            monthlyInvestmentCurrent *= (1 + monthlyInvestmentGrowthRate);
-        }
+        const totalAssets = (annualInvestment + adjustedDividend) * (1 + stockGrowthRate);
 
-        // 연 투자금 및 연 배당금 계산
-        const annualInvestment = totalInvestment + (monthlyInvestmentCurrent * 12);
-        const annualDividend = annualInvestment * dividendRate * reinvestmentRate * (1 - taxRate) * (1 - inflationRate);
-
-        // 연말 총 자산 계산
-        totalInvestment += (annualDividend + (monthlyInvestmentCurrent * 12));
-        const totalAssets = (annualInvestment + annualDividend) * (1 + stockGrowthRate);
-
-        // 누적 투자 배당금 및 총 자산
-        totalDividends += annualDividend;
-
-        // 결과 저장
         results.push({
             year: year,
-            annualDividend: annualDividend,
-            monthlyDividend: annualDividend / 12,
+            annualDividend: adjustedDividend,
+            monthlyDividend: adjustedDividend / 12,
             totalAssets: totalAssets,
-            cumulativeInvestment: totalInvestment,
-            cumulativeDividends: totalDividends
+            totalInvestment: totalInvestment + currentMonthlyInvestment * 12,
+            totalDividends: accumulatedDividends + adjustedDividend
         });
 
-        // 목표 월 배당금 도달 여부 확인
-        if (results[results.length - 1].monthlyDividend >= targetMonthlyDividend) {
-            break;
-        }
+        totalInvestment += currentMonthlyInvestment * 12;
+        accumulatedDividends += adjustedDividend;
     }
 
-    // 결과 테이블에 데이터 추가
+    const yearsToTarget = results.findIndex(result => result.monthlyDividend >= targetMonthlyDividend) + 1;
+
+    if (yearsToTarget > 0) {
+        results = results.slice(0, yearsToTarget); // 결과를 목표 달성 연도까지만 저장
+    }
+
+    let resultHTML = "<h2>계산 결과</h2>";
+    resultHTML += "<table border='1'><tr><th>연도</th><th>연 배당금 (만원)</th><th>월 배당금 (만원)</th><th>총 자산 (만원)</th><th>누적 투자 원금 (만원)</th><th>누적 투자 배당금 (만원)</th></tr>";
     results.forEach(result => {
-        const row = resultsTableBody.insertRow();
-        row.insertCell(0).innerText = result.year;
-        row.insertCell(1).innerText = result.annualDividend.toLocaleString();
-        row.insertCell(2).innerText = result.monthlyDividend.toLocaleString();
-        row.insertCell(3).innerText = result.totalAssets.toLocaleString();
-        row.insertCell(4).innerText = result.cumulativeInvestment.toLocaleString();
-        row.insertCell(5).innerText = result.cumulativeDividends.toLocaleString();
+        resultHTML += `<tr>
+            <td>${result.year}</td>
+            <td>${formatNumber(Math.round(result.annualDividend / 10000))}</td>
+            <td>${formatNumber(Math.round(result.monthlyDividend / 10000))}</td>
+            <td>${formatNumber(Math.round(result.totalAssets / 10000))}</td>
+            <td>${formatNumber(Math.round(result.totalInvestment / 10000))}</td>
+            <td>${formatNumber(Math.round(result.totalDividends / 10000))}</td>
+        </tr>`;
     });
+    resultHTML += "</table>";
 
-    // 목표 달성을 위한 총 기간 계산
-    document.getElementById("resultMessage").innerText = 
-        `월 투자금 ${monthlyInvestmentCurrent.toLocaleString()}만원으로 목표 월 배당금을 달성하기 위해서는 총 ${year}년이 걸립니다. 경제적 자유를 위해 화이팅하세요!`;
+    document.getElementById("results").innerHTML = resultHTML;
 
-    // 그래프 그리기
     drawChart(results);
-}
+});
 
 function drawChart(results) {
-    const ctx = document.getElementById("dividendChart").getContext("2d");
-    const labels = results.map(result => result.year);
-    const monthlyDividends = results.map(result => result.monthlyDividend);
+    const ctx = document.getElementById('dividendChart').getContext('2d');
+    const years = results.map(result => result.year);
+    const monthlyDividends = results.map(result => Math.round(result.monthlyDividend / 10000));
 
-    const data = {
-        labels: labels,
-        datasets: [{
-            label: '월 평균 배당금',
-            data: monthlyDividends,
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 2,
-            fill: false
-        }]
-    };
-
-    const config = {
+    new Chart(ctx, {
         type: 'line',
-        data: data,
+        data: {
+            labels: years,
+            datasets: [{
+                label: '월 평균 배당금',
+                data: monthlyDividends,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderWidth: 2,
+                fill: true,
+            }]
+        },
         options: {
+            responsive: true,
             scales: {
                 y: {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: '배당금 (원)'
+                        text: '배당금 (만원)'
                     }
                 },
                 x: {
@@ -153,14 +103,54 @@ function drawChart(results) {
                 }
             }
         }
-    };
-
-    new Chart(ctx, config);
+    });
 }
 
-// 페이지 로드 후 이벤트 리스너 설정
-document.addEventListener("DOMContentLoaded", function() {
-    // 버튼 클릭 이벤트 리스너 추가
-    document.getElementById("langSwitch").addEventListener("click", switchLanguage);
-    document.getElementById("calculateButton").addEventListener("click", calculate);
+document.getElementById("langSwitch").addEventListener("click", function() {
+    currentLanguage = currentLanguage === 'ko' ? 'en' : 'ko';
+    switchLanguage();
 });
+
+function switchLanguage() {
+    const elements = {
+        "초기 투자금 (만원)": "Initial Investment (10,000 won)",
+        "배당률 (%)": "Dividend Rate (%)",
+        "배당 성장률 (%)": "Dividend Growth Rate (%)",
+        "주가 상승률 (%)": "Stock Growth Rate (%)",
+        "월 투자금 (만원)": "Monthly Investment (10,000 won)",
+        "월 투자금 증가율 (%)": "Monthly Investment Growth Rate (%)",
+        "배당금 재투자율 (%)": "Reinvestment Rate (%)",
+        "세율 (%)": "Tax Rate (%)",
+        "인플레이션 (%)": "Inflation Rate (%)",
+        "목표 월 배당금 (만원)": "Target Monthly Dividend (10,000 won)",
+        "계산하기": "Calculate",
+        "영어로 전환": "Switch to Korean",
+        "계산 결과": "Calculation Results",
+        "연 배당금 (만원)": "Annual Dividend (10,000 won)",
+        "월 배당금 (만원)": "Monthly Dividend (10,000 won)",
+        "총 자산 (만원)": "Total Assets (10,000 won)",
+        "누적 투자 원금 (만원)": "Total Investment (10,000 won)",
+        "누적 투자 배당금 (만원)": "Total Dividends (10,000 won)",
+    };
+
+    document.querySelectorAll('label').forEach(label => {
+        const text = label.innerText;
+        label.innerText = currentLanguage === 'ko' ? text : elements[text];
+    });
+
+    document.getElementById("calculateButton").innerText = currentLanguage === 'ko' ? "계산하기" : "Calculate";
+    document.getElementById("langSwitch").innerText = currentLanguage === 'ko' ? "영어로 전환" : "Switch to Korean";
+    
+    if (currentLanguage === 'en') {
+        const resultsTable = document.querySelector("#results table");
+        if (resultsTable) {
+            resultsTable.querySelector('th:nth-child(1)').innerText = "Year";
+            resultsTable.querySelector('th:nth-child(2)').innerText = "Annual Dividend (10,000 won)";
+            resultsTable.querySelector('th:nth-child(3)').innerText = "Monthly Dividend (10,000 won)";
+            resultsTable.querySelector('th:nth-child(4)').innerText = "Total Assets (10,000 won)";
+            resultsTable.querySelector('th:nth-child(5)').innerText = "Total Investment (10,000 won)";
+            resultsTable.querySelector('th:nth-child(6)').innerText = "Total Dividends (10,000 won)";
+        }
+    }
+}
+
