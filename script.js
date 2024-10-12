@@ -157,3 +157,9 @@ function drawChart(results) {
 
     new Chart(ctx, config);
 }
+
+// 페이지 로드 후 이벤트 리스너 설정
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelector("#langSwitch").addEventListener("click", switchLanguage);
+    document.querySelector("button[onclick='calculate()']").addEventListener("click", calculate);
+});
