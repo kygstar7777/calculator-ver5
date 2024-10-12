@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dividend Calculator | 배당금 계산기</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
+    <title>배당금 계산기</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1 id="title">배당금 계산기 | Dividend Calculator</h1>
+        <h1 id="title">배당금 계산기 (Dividend Calculator)</h1>
+        <button id="languageToggle">언어 전환 (Switch Language)</button>
+
         <div class="input-group">
             <label for="initialInvestment">초기 투자금 (Initial Investment, 만원):</label>
             <input type="number" id="initialInvestment" value="1000">
@@ -50,11 +52,27 @@
             <label for="targetMonthlyDividend">목표 월 배당금 (Target Monthly Dividend, 만원):</label>
             <input type="number" id="targetMonthlyDividend" value="100">
         </div>
-        <button id="calculateButton">계산하기 | Calculate</button>
-        <button id="toggleLanguageButton">영어로 전환 | Switch to English</button>
-        <div id="results"></div>
+
+        <button id="calculateButton">계산하기 (Calculate)</button>
+
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th>연도 (Year)</th>
+                    <th>연 배당금 (Annual Dividend)</th>
+                    <th>월 배당금 (Monthly Dividend)</th>
+                    <th>총 자산 (Total Assets)</th>
+                    <th>누적 투자 원금 (Cumulative Investment)</th>
+                    <th>누적 투자 배당금 (Cumulative Dividend)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div id="resultMessage"></div>
         <canvas id="dividendChart"></canvas>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
