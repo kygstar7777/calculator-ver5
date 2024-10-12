@@ -61,24 +61,25 @@ canvas {
     height: 300px;
 }
 
-th, td {
-    text-align: center;
-    padding: 10px;
-}
-
-label {
-    font-size: 1.2em; /* Adjust font size */
-}
-
-.input-group {
-    font-size: 1.2em; /* Adjust font size */
-}
-
+/* 반응형 글자 크기 조정 */
 @media (max-width: 600px) {
-    label {
-        font-size: 1em; /* Responsive font size */
+    h1 {
+        font-size: 24px;
     }
-    .input-group {
-        font-size: 1em; /* Responsive font size */
+
+    .input-group label {
+        font-size: 14px;
+    }
+
+    input {
+        font-size: 14px;
+    }
+
+    button {
+        font-size: 14px;
+    }
+
+    #results {
+        font-size: 1em;
     }
 }
