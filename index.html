@@ -3,63 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>배당 계산기</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>배당금 계산기</title>
 </head>
 <body>
     <div class="container">
-        <h1>배당 계산기</h1>
-        <button id="langSwitch" onclick="switchLanguage()">영어로 전환</button>
+        <h1>배당금 계산기</h1>
         <div id="inputFields">
-            <label for="initialInvestment">초기 투자금 (만원):</label>
-            <input type="number" id="initialInvestment" value="1000">
+            <label>초기 투자금 (만원):</label>
+            <input type="number" id="initialInvestment" required><br>
 
-            <label for="dividendRate">배당률 (%):</label>
-            <input type="number" id="dividendRate" value="4">
+            <label>배당률 (%):</label>
+            <input type="number" id="dividendRate" required><br>
 
-            <label for="dividendGrowthRate">배당 성장률 (%):</label>
-            <input type="number" id="dividendGrowthRate" value="8">
+            <label>배당 성장률 (%):</label>
+            <input type="number" id="dividendGrowthRate" required><br>
 
-            <label for="stockGrowthRate">주가 상승률 (%):</label>
-            <input type="number" id="stockGrowthRate" value="4">
+            <label>주가 상승률 (%):</label>
+            <input type="number" id="stockGrowthRate" required><br>
 
-            <label for="monthlyInvestment">월 투자금 (만원):</label>
-            <input type="number" id="monthlyInvestment" value="100">
+            <label>월 투자금 (만원):</label>
+            <input type="number" id="monthlyInvestment" required><br>
 
-            <label for="monthlyInvestmentGrowthRate">월 투자금 증가율 (%):</label>
-            <input type="number" id="monthlyInvestmentGrowthRate" value="5">
+            <label>월 투자금 증가율 (%):</label>
+            <input type="number" id="monthlyInvestmentGrowthRate" required><br>
 
-            <label for="reinvestmentRate">배당금 재투자율 (%):</label>
-            <input type="number" id="reinvestmentRate" value="100">
+            <label>배당금 재투자율 (%):</label>
+            <input type="number" id="reinvestmentRate" required><br>
 
-            <label for="taxRate">세율 (%):</label>
-            <input type="number" id="taxRate" value="15">
+            <label>세율 (%):</label>
+            <input type="number" id="taxRate" required><br>
 
-            <label for="inflationRate">인플레이션 (%):</label>
-            <input type="number" id="inflationRate" value="3">
+            <label>인플레이션 (%):</label>
+            <input type="number" id="inflationRate" required><br>
 
-            <label for="targetMonthlyDividend">목표 월 배당금 (만원):</label>
-            <input type="number" id="targetMonthlyDividend" value="100">
-
-            <button onclick="calculate()">계산하기</button>
+            <label>목표 월 배당금 (만원):</label>
+            <input type="number" id="targetMonthlyDividend" required><br>
         </div>
+
+        <!-- 버튼 추가 위치 -->
+        <button id="calculateButton">계산하기</button>
+        <button id="langSwitch">영어로 전환</button>
+
+        <h2>결과</h2>
         <table id="resultsTable">
             <thead>
                 <tr>
                     <th>연도</th>
                     <th>연 배당금 (원)</th>
                     <th>월 배당금 (원)</th>
-                    <th>연말 총 자산 (원)</th>
+                    <th>총 자산 (원)</th>
                     <th>누적 투자 원금 (원)</th>
                     <th>누적 투자 배당금 (원)</th>
                 </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+                <!-- 결과가 여기에 추가됩니다. -->
+            </tbody>
         </table>
+
         <p id="resultMessage"></p>
-        <canvas id="dividendChart"></canvas>
+        <canvas id="dividendChart" width="400" height="200"></canvas>
     </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
