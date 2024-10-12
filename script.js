@@ -160,6 +160,7 @@ function drawChart(results) {
 
 // 페이지 로드 후 이벤트 리스너 설정
 document.addEventListener("DOMContentLoaded", function() {
-    document.querySelector("#langSwitch").addEventListener("click", switchLanguage);
-    document.querySelector("button[onclick='calculate()']").addEventListener("click", calculate);
+    // 버튼 클릭 이벤트 리스너 추가
+    document.getElementById("langSwitch").addEventListener("click", switchLanguage);
+    document.getElementById("calculateButton").addEventListener("click", calculate);
 });
