@@ -1,46 +1,49 @@
-document.getElementById("languageToggle").addEventListener("click", switchLanguage);
-document.getElementById("calculateButton").addEventListener("click", calculateDividends);
-
-let isKorean = true; // 기본 언어 설정
+let currentLanguage = 'ko';
 
 function switchLanguage() {
-    isKorean = !isKorean; // 언어 전환
-    updateLanguage();
-}
+    const inputLabels = {
+        ko: [
+            "초기 투자금 (만원):",
+            "배당률 (%):",
+            "배당 성장률 (%):",
+            "주가 상승률 (%):",
+            "월 투자금 (만원):",
+            "월 투자금 증가율 (%):",
+            "배당금 재투자율 (%):",
+            "세율 (%):",
+            "인플레이션 (%):",
+            "목표 월 배당금 (만원):"
+        ],
+        en: [
+            "Initial Investment (ten thousand won):",
+            "Dividend Rate (%):",
+            "Dividend Growth Rate (%):",
+            "Stock Growth Rate (%):",
+            "Monthly Investment (ten thousand won):",
+            "Monthly Investment Growth Rate (%):",
+            "Reinvestment Rate (%):",
+            "Tax Rate (%):",
+            "Inflation (%):",
+            "Target Monthly Dividend (ten thousand won):"
+        ]
+    };
 
-function updateLanguage() {
-    const title = isKorean ? "배당금 계산기 (Dividend Calculator)" : "Dividend Calculator";
-    const buttonText = isKorean ? "언어 전환 (Switch Language)" : "Switch Language";
-    const calculateText = isKorean ? "계산하기 (Calculate)" : "Calculate";
-    
-    document.getElementById("title").innerText = title;
-    document.getElementById("languageToggle").innerText = buttonText;
-    document.getElementById("calculateButton").innerText = calculateText;
+    const buttonText = {
+        ko: "영어로 전환",
+        en: "Switch to Korean"
+    };
 
-    // 입력 필드의 라벨 업데이트
-    const labels = [
-        "초기 투자금 (Initial Investment, 만원)",
-        "배당률 (Dividend Rate, %)",
-        "배당 성장률 (Dividend Growth Rate, %)",
-        "주가 상승률 (Stock Growth Rate, %)",
-        "월 투자금 (Monthly Investment, 만원)",
-        "월 투자금 증가율 (Monthly Investment Growth Rate, %)",
-        "배당금 재투자율 (Reinvestment Rate, %)",
-        "세율 (Tax Rate, %)",
-        "인플레이션 (Inflation Rate, %)",
-        "목표 월 배당금 (Target Monthly Dividend, 만원)"
-    ];
-
-    labels.forEach((label, index) => {
-        document.querySelectorAll("label")[index].innerText = isKorean ? label : label.split(" (")[0];
+    const inputs = document.querySelectorAll("#inputFields label");
+    inputs.forEach((label, index) => {
+        label.innerText = currentLanguage === 'ko' ? inputLabels.en[index] : inputLabels.ko[index];
     });
 
-    // 결과 메시지 업데이트
-    document.getElementById("resultMessage").innerText = "";
+    currentLanguage = currentLanguage === 'ko' ? 'en' : 'ko';
+    document.getElementById("langSwitch").innerText = buttonText[currentLanguage];
 }
 
-function calculateDividends() {
-    const initialInvestment = parseFloat(document.getElementById("initialInvestment").value) * 10000; // 만원 단위
+function calculate() {
+    const initialInvestment = parseFloat(document.getElementById("initialInvestment").value) * 10000;
     const dividendRate = parseFloat(document.getElementById("dividendRate").value) / 100;
     const dividendGrowthRate = parseFloat(document.getElementById("dividendGrowthRate").value) / 100;
     const stockGrowthRate = parseFloat(document.getElementById("stockGrowthRate").value) / 100;
@@ -51,7 +54,6 @@ function calculateDividends() {
     const inflationRate = parseFloat(document.getElementById("inflationRate").value) / 100;
     const targetMonthlyDividend = parseFloat(document.getElementById("targetMonthlyDividend").value) * 10000;
 
-    // 결과 테이블 초기화
     const resultsTableBody = document.getElementById("resultsTable").querySelector("tbody");
     resultsTableBody.innerHTML = ""; // 기존 데이터 삭제
 
@@ -155,4 +157,3 @@ function drawChart(results) {
 
     new Chart(ctx, config);
 }
-
